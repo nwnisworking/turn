@@ -2,7 +2,7 @@
 namespace STUN;
 
 use Generator;
-use STUN\Enums\Attribute as MessageAttribute;
+use STUN\Enums\Attribute as Attr;
 use STUN\Enums\Error;
 
 /**
@@ -17,9 +17,9 @@ final class Attribute {
 	/**
 	 * The name of the attribute, represented by an enum from STUN\Enums\Attribute.
 	 *
-	 * @var MessageAttribute
+	 * @var Attr
 	 */
-	public readonly MessageAttribute $name;
+	public readonly Attr $name;
 
 	/**
 	 * The value of the attribute.
@@ -52,7 +52,7 @@ final class Attribute {
 			] = unpack("nname/nlength/a*value", $data);
 
 			// Validate attribute name
-			assert($name = MessageAttribute::tryFrom($name), "Unable to validate attribute");
+			assert($name = Attr::tryFrom($name), "Unable to validate attribute");
 
 			$data = [
 				'name'=>$name,
@@ -91,17 +91,22 @@ final class Attribute {
 
 	/**
 	 * Retrieves the value of the attribute, performing any necessary decoding.
-	 * Currently handles XOR attributes.
 	 *
 	 * @return mixed The decoded value of the attribute, or null for unsupported types.
 	 */
 	public function value(): mixed {
 		switch($this->name){
-			case MessageAttribute::XOR_PEER_ADDRESS:
-			case MessageAttribute::XOR_MAPPED_ADDRESS:
-			case MessageAttribute::XOR_RELAYED_ADDRESS:
-				// Handle XOR address cases
-			break;
+			case Attr::XOR_PEER_ADDRESS:
+			case Attr::XOR_MAPPED_ADDRESS:
+			case Attr::XOR_RELAYED_ADDRESS:
+				$xor = $this->message->cookie.$this->message->id;
+				$family = $this->value[1];
+				$port = $xor ^ substr($this->value, 2, 2);
+				$ip = $xor ^ substr($this->value, 4, $family === "\x1" ? 4 : 16);
+
+				return new Address(inet_ntop($ip), ord($port[0]) << 8 | ord($port[1]));
+			case Attr::DATA : 
+				return $this->value;
 		}
 
 		return null;
@@ -137,6 +142,65 @@ final class Attribute {
 		$this->message = $message;
 
 		return $this;
+	}
+
+	public static function XORMappedAddress(Address $address, Message $message): self{
+		$xor = $message->cookie.$message->id;
+		$family = $address->isIPV4() ? "\x1" : "\x2";
+
+		return new self([
+			'name'=>Attr::XOR_MAPPED_ADDRESS,
+			'value'=>"\x0$family".($address->port() ^ $xor).($address->ip() ^ $xor)
+		]);
+	}
+	
+	public static function MappedAddress(Address $address): self{
+    $family = $address->isIPV4() ? "\x1" : "\x2";
+		
+		return new self([
+			'name'=>Attr::MAPPED_ADDRESS,
+			'value'=>"\x0$family".$address->port().$address->ip()
+		]);
+	}
+
+	public static function XORRelayedAddress(Address $address, Message $message): self{
+		$xor = $message->cookie.$message->id;
+		$family = $address->isIPV4() ? "\x1" : "\x2";
+
+		return new self([
+			'name'=>Attr::XOR_RELAYED_ADDRESS,
+			'value'=>"\x0$family".($address->port() ^ $xor).($address->ip() ^ $xor)
+		]);
+	}
+
+	public static function ErrorCode(Error $code, ?string $reason = ''): self{
+    $class = $code->value / 100 >> 0;
+
+    return new self([
+      'name'=>Attr::ERROR_CODE,
+      'value'=>pack('nCCa*', 0, $class, $code->value ^ $class * 100, $reason)
+    ]);
+  }
+
+	public static function RequestedTransport(int $type = 0x11): self{
+    return new self([
+      'name'=>Attr::REQUESTED_TRANSPORT,
+      'value'=>chr($type)
+    ]);
+  }
+
+	public static function Lifetime(int $second): self{
+    return new self([
+      'name'=>Attr::LIFETIME,
+      'value'=>pack('N', $second)
+    ]);
+  }
+
+	public static function Software(string $name): self{
+		return new self([
+			'name'=>Attr::SOFTWARE,
+			'value'=>$name
+		]);
 	}
 
 	public function __toString(){
