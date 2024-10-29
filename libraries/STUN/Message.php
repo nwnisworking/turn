@@ -2,7 +2,7 @@
 namespace STUN;
 
 use SplObjectStorage;
-use STUN\Enums\Attribute as MessageAttribute;
+use STUN\Enums\Attribute as Attr;
 use STUN\Enums\Method;
 use STUN\Enums\Type;
 
@@ -148,13 +148,26 @@ class Message {
 		return $this;
 	}
 
+	public function removeAttribute(Attr ...$attr): self{
+		$data = new SplObjectStorage;
+
+		foreach($this->attributes as $key){
+			if(!in_array($key, $attr))
+				$data->attach($key, $this->attributes[$key]);
+		}
+
+		$this->attributes->removeAllExcept($data);
+
+		return $this;
+	}
+
 	/**
 	 * Gets a specific attribute from the STUN message.
 	 *
-	 * @param MessageAttribute $attribute The attribute to retrieve.
+	 * @param Attr $attribute The attribute to retrieve.
 	 * @return Attribute|null The requested attribute or null if not found.
 	 */
-	public function getAttribute(MessageAttribute $attribute): ?Attribute {
+	public function getAttribute(Attr $attribute): ?Attribute {
 		return $this->attributes->contains($attribute) ? $this->attributes[$attribute] : null;
 	}
 
@@ -172,6 +185,16 @@ class Message {
 		}
 
 		return $i;
+	}
+
+	public function __clone(){
+		$attributes = new SplObjectStorage;
+
+		foreach($this->attributes as $key){
+			$attributes[$key] = $this->attributes[$key];
+		}
+
+		$this->attributes = $attributes;
 	}
 
 	public function __toString() {

@@ -35,7 +35,7 @@ class Socket {
 	 * 
 	 * @var Address
 	 */
-	public Address $peer_address;
+	public ?Address $peer_address = null;
 
 	/**
 	 * Constructor for the Socket class.

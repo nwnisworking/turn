@@ -6,81 +6,74 @@
   <title>WebRTC Test</title>
 </head>
 <body>
-  <!-- This is the first test for the server -->
-  <!-- <script type="module">
-    // Delay script from running until server fixes itself
-    await new Promise(res=>{setTimeout(res, 1000)})
+  <video id="bob"></video>
+  <script type="module" src="rtc.js">
 
-    const urls = 'turn:127.0.0.1:9000'
-    const rtc = new RTCPeerConnection({
-      iceServers : [
-        {urls : 'turn:127.0.0.1:9000', username : 'nwn', credential : 'test'}
-      ],
-      iceTransportPolicy : 'relay'
-    })
+    // await new Promise(res=>{setTimeout(res, 1000)})
 
-    rtc.createDataChannel('comm')
-    rtc.onicecandidateerror = console.log
-
-    function update(rtc, option){
-      const candidates = []
-
-      rtc.setLocalDescription(option)
-      
-      return new Promise((res, rej)=>{
-        rtc.onicecandidate = ({candidate})=>candidate ? candidates.push(candidate) : res({candidates, option})
-      })
-
-
-      console.log(arguments)
-    }
-
-    const data = await rtc.createOffer().then(update.bind(null, rtc))
-    console.log(data)
-    // rtc.createOffer().then(e=>{
-    //   rtc.setLocalDescription(e)
-
-    //   rtc.onicecandidate = console.log
+    // const alice = new RTCPeerConnection({
+    //   iceServers : [
+    //     {urls : 'turn:192.168.18.4:9000', username : 'alice', credential : 'test'}
+    //   ],
+    //   iceTransportPolicy : 'relay'
     // })
-  </script> -->
 
-  <script type="module">
-    await new Promise(res=>{setTimeout(res, 1000)})
+    // const bob = new RTCPeerConnection({
+    //   iceServers : [
+    //     {urls : 'turn:192.168.18.4:9000', username : 'bob', credential : 'test'}
+    //   ],
+    //   iceTransportPolicy : 'relay'
+    // })
 
-    const alice = new RTCPeerConnection({
-      iceServers : [
-        {urls : 'turn:127.0.0.1:9000', username : 'alice', credential : 'test'}
-      ],
-      iceTransportPolicy : 'relay'
-    })
+    // navigator.mediaDevices.getDisplayMedia({audio : true, video : true}).then(e=>{
+    //   e.getTracks().forEach(e=>alice.addTrack(e))
+    // })
 
-    const bob = new RTCPeerConnection({
-      iceServers : [
-        {urls : 'turn:127.0.0.1:9000', username : 'bob', credential : 'test'}
-      ],
-      iceTransportPolicy : 'relay'
-    })
+    // const stream = window.stream = await navigator.mediaDevices.getDisplayMedia({audio : true, video : true})
 
-    function update(rtc, option){
-      const candidates = []
 
-      rtc.setLocalDescription(option)
+    // function update(rtc, option){
+    //   const candidates = []
+
+    //   rtc.setLocalDescription(option)
       
-      return new Promise((res, rej)=>{
-        rtc.onicecandidate = ({candidate})=>candidate ? candidates.push(candidate) : res({candidates, option})
-      })
+    //   return new Promise((res, rej)=>{
+    //     rtc.onicecandidate = ({candidate})=>candidate ? candidates.push(candidate) : res({candidates, option})
+    //   })
 
 
-    }
+    // }
 
-    alice.createDataChannel('comm')
+    // alice.createDataChannel('comm')
 
-    const a2b = await alice.createOffer().then(update.bind(null, alice))
-    console.log(alice)    
+    // const a2b = await alice.createOffer({offerToReceiveAudio : true, offerToReceiveVideo : true}).then(update.bind(null, alice))
+    // console.log(alice)    
 
-    bob.setRemoteDescription(a2b.option)
-    a2b.candidates.forEach(e=>bob.addIceCandidate(e))
-    bob.createAnswer().then(update.bind(null, bob))
+    // bob.setRemoteDescription(a2b.option)
+    // a2b.candidates.forEach(e=>bob.addIceCandidate(e))
+   
+    // const b2a = await bob.createAnswer({offerToReceiveAudio : true, offerToReceiveVideo : true}).then(update.bind(null, bob))
+
+    // alice.setRemoteDescription(b2a.option)
+    // b2a.candidates.forEach(e=>alice.addIceCandidate(e))
+
+    // const inbound_stream = window.inbound = new MediaStream
+    // const video = document.querySelector('video')
+
+    // video.srcObject = inbound_stream
+
+    // console.log(bob)
+    // bob.onaddstream = e=>{
+    //   console.log(e)
+    // }
+    // bob.ontrack = e=>{
+    //   console.log(e)
+    //   inbound_stream.addTrack(e.track)
+    // }
+
+    // bob.ondatachannel = e=>console.log(e.channel)
+
+    // alice.ontrack = alice.onaddstream = console.log
   </script>
 </body>
 </html>

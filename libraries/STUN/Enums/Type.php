@@ -16,7 +16,7 @@ enum Type: int {
     /**
      * A STUN indication message, which does not expect a response.
      */
-    case INDICATION = 0x8;
+    case INDICATION = 0x10;
 
     /**
      * A STUN response message, sent in reply to a request.

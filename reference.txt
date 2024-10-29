@@ -1,0 +1,11 @@
+Client: 63778, Relay: 64247, User: Alice
+Client: 63780, Relay: 60920, User: Bob
+
+At this point, a binding and allocate request have been sent.
+
+Bob create permission to join with Alice Relay(64247) (called peer address)
+Bob sends an indication to the server to send to Alice relay??
+Server sends success create permission response to Bob
+Bob's Relay(60920) sends a binding request to Alice's Relay(64247)
+Alice's Relay(64247) response with XOR Mapped Address of Bob's Relay(60920)
+Server will send data indication to Bob and XOR Peer Address of Alice's relay

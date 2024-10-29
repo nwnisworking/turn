@@ -28,11 +28,13 @@ class Server{
 		return $socket;
 	}
 
-	public function clientAddress(Address $address): Socket{
-		return $this->client_address[(string)$address];
+	public function clientAddress(Address $address): ?Socket{
+		return $this->client_address[(string)@$address];
 	}
 
-	public function localAddress(Address $address): Socket{
+	public function localAddress(?Address $address): ?Socket{
+		if(!$address)
+			return null;
 		return $this->local_address[(string)$address];
 	}
 
