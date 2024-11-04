@@ -28,7 +28,7 @@ class Socket {
 	 * 
 	 * @var Address
 	 */
-	public Address $client_address;
+	public ?Address $client_address = null;
 
 	/**
 	 * The peer address to which data will be sent.
@@ -64,7 +64,7 @@ class Socket {
 	 * @return string|bool The received data, or false on failure.
 	 */
 	public function read(Address &$address = null): string|bool {
-		$result = @socket_recvfrom($this->master, $data, 1024, 0, $ip, $port);
+		$result = @socket_recvfrom($this->master, $data, 1024 * 1024, 0, $ip, $port);
 
 		// If successful, create a new Address object for the sender
 		if($result){

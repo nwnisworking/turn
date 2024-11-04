@@ -217,9 +217,9 @@ final class Attribute {
     ]);
   }
 
-	public static function MessageIntegrity(string $password, self $user, self $realm, Message $message): self{
-		$user = $user->value();
-		$realm = $realm->value();
+	public static function MessageIntegrity(string $password, self|string $user, self|string $realm, Message $message): self{
+		$user = !is_string($user) ? $user->value() : $user;
+		$realm = !is_string($realm) ? $realm->value() : $realm;
 		$msg = clone $message;
 		$msg->removeAttribute(Attr::MESSAGE_INTEGRITY);
 		
